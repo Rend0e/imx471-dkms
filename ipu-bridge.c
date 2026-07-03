@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0
 /* Author: Dan Scally <djrscally@gmail.com> */
 
+#include <linux/version.h>
 #include <linux/acpi.h>
 #include <acpi/acpi_bus.h>
 #include <linux/cleanup.h>
@@ -695,7 +696,12 @@ int ipu_bridge_instantiate_vcm(struct device *sensor)
 		return 0;
 	}
 
+/* Pre-7.0.0 compatibility: use kzalloc() to avoid kzalloc_obj() API mismatch on older kernels */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
+	data = kzalloc(sizeof(*data), GFP_KERNEL);
+#else
 	data = kzalloc_obj(*data);
+#endif
 	if (!data) {
 		fwnode_handle_put(vcm_fwnode);
 		return -ENOMEM;
@@ -908,7 +914,12 @@ int ipu_bridge_init(struct device *dev,
 		return dev_err_probe(dev, -EPROBE_DEFER,
 				     "waiting for IVSC to become ready\n");
 
+/* Pre-7.0.0 compatibility: use kzalloc() to avoid kzalloc_obj() API mismatch on older kernels */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
+	bridge = kzalloc(sizeof(*bridge), GFP_KERNEL);
+#else
 	bridge = kzalloc_obj(*bridge);
+#endif
 	if (!bridge)
 		return -ENOMEM;
 

@@ -1,26 +1,172 @@
 # imx471.yaml for libcamera Simple IPA
 # SPDX-License-Identifier: CC0-1.0
-# Calibrated from IMX471_AAJH5-D_LNL.aiqb
+# Calibrated by hand from identity matrix and IMX471 aiqb references
 %YAML 1.1
 ---
 version: 1
 algorithms:
   - BlackLevel:
-      blackLevel: 4096  # TODO: set correct value from sensor datasheet
+      blackLevel: 4096  # From datasheet: 64 at 10-bits (4096 at 16-bits)
   - Awb:
-      maxGainR: 4.00
-      maxGainB: 7.00
+      maxGainR: 2.38
+      maxGainB: 3.47
       speed: 0.25
   - Ccm:
-      ccms:
-        - ct: 4500
+      ccms: # [aiqb 1] AAJH5-D_LNL, CBG802N3A_PTL, CBG802N3AP_PTL, CJFPE90P_PTL, CJFPE90_PTL
+        # CCT=2702K  R/G=0.9011  B/G=0.3173 [G=88, R&B=x2.2]
+        - ct: 2702
           ccm: [ 
-            1.95, -0.45, -0.35, 
-            -0.40, 0.95, -0.05,
-            -0.20, -0.50, 2.00 ]
-  - Adjust:
+            1.9824, 0, 0,
+            0, 0.88, 0,
+            0, 0, 0.6981 ]
+        # CCT=2785K  R/G=0.8241  B/G=0.3263 [G=88, R&B=x2.2]
+        - ct: 2785
+          ccm: [ 
+            1.813, 0, 0,
+            0, 0.88, 0,
+            0, 0, 0.7179 ]
+        # CCT=3604K  R/G=0.6522  B/G=0.4079 [G=88, R&B=x2.2]
+        - ct: 3604
+          ccm: [ 
+            1.4348, 0, 0,
+            0, 0.88, 0,
+            0, 0, 0.8974 ]
+        # CCT=4635K  R/G=0.5841  B/G=0.5149 [G=88, R&B=x2.2]
+        - ct: 4635
+          ccm: [ 
+            1.285, 0, 0,
+            0, 0.88, 0,
+            0, 0, 1.1328 ]
+        # CCT=5689K  R/G=0.5043  B/G=0.6068 [G=0.68, R&B=x2.2]
+        - ct: 5689
+          ccm: [ 
+            1.1095, 0, 0,
+            0, 0.68, 0,
+            0, 0, 1.335 ]
+
+      # ccms: # [aiqb 3] TBE0020A0_AAJH5-D_PTL
+      #   # CCT=2730K  R/G=0.866  B/G=0.3269 [G=88, R&B=x2.2]
+      #   - ct: 2730
+      #     ccm: [ 
+      #       1.9052, 0, 0,
+      #       0, 0.88, 0,
+      #       0, 0, 0.7192 ]
+      #   # CCT=2756K  R/G=0.794  B/G=0.3367 [G=88, R&B=x2.2]
+      #   - ct: 2756
+      #     ccm: [ 
+      #       1.7468, 0, 0,
+      #       0, 0.88, 0,
+      #       0, 0, 0.7407 ]
+      #   # CCT=3586K  R/G=0.6286  B/G=0.4196 [G=88, R&B=x2.2]
+      #   - ct: 3586
+      #     ccm: [ 
+      #       1.3829, 0, 0,
+      #       0, 0.88, 0,
+      #       0, 0, 0.9231 ]
+      #   # CCT=3790K  R/G=0.6062  B/G=0.4366 [G=88, R&B=x2.2]
+      #   - ct: 3790
+      #     ccm: [ 
+      #       1.3336, 0, 0,
+      #       0, 0.88, 0,
+      #       0, 0, 0.9605 ]
+      #   # CCT=4634K  R/G=0.5569  B/G=0.5287 [G=88, R&B=x2.2]
+      #   - ct: 4634
+      #     ccm: [ 
+      #       1.2252, 0, 0,
+      #       0, 0.88, 0,
+      #       0, 0, 1.1631 ]
+      #   # CCT=5776K  R/G=0.4719  B/G=0.6188 [G=0.68, R&B=x2.2]
+      #   - ct: 5776
+      #     ccm: [ 
+      #       1.0382, 0, 0,
+      #       0, 0.68, 0,
+      #       0, 0, 1.3614 ]
+
+        # - ct: 4400 #  Hand calibrated at temperature 4400K (example)
+        #   ccm: [ 
+        #     1.36, 0, 0,  # R 0 0 - Increase [R] 'red'   for 'warmer tone' (and/or decrease 'B')
+        #     0, 1.02, 0,  # 0 G 0 - Decrease [G] 'green' to reduce green tint or increase to balance
+        #     0, 0, 1.16 ] # 0 0 B - Increase [B] 'blue'  for 'cooler tone' (and/or decrease 'R')
+
+  - Adjust: # Note: these below don't seem to have any effect...
       gamma: 2.2
       contrast: 1.0
       saturation: 1.0
   - Agc:
-...
+# LIBCAMERA_LOG_LEVELS="IPASoftAwb:DEBUG" LIBCAMERA_IPA_CONFIG_PATH=...
+# ================================================================================ #
+# parse_aiqb.py (aiqb values) https://jetm.github.io/blog/posts/ipu6-aiqb-calibration/
+# ================================================================================ #
+# [aiqb 1]
+# File: IMX471_AAJH5-D_LNL.aiqb (651080 bytes)
+# Records found: [1, 2, 3, 7, 9, 13, 15, 16, 17, 19, 20, 25, 26, 28, 31, 33, 34, 37]
+
+# Sensor: 1928x1088, 10-bit, color_order=2
+# Base ISO: 64
+
+# Advanced color matrices (id=25, 5 entries, float CCMs):
+#   CCT=2702K  R/G=0.9011  B/G=0.3173
+#   CCT=2785K  R/G=0.8241  B/G=0.3263
+#   CCT=3604K  R/G=0.6522  B/G=0.4079
+#   CCT=4635K  R/G=0.5841  B/G=0.5149
+#   CCT=5689K  R/G=0.5043  B/G=0.6068
+
+# Suggested AWB maxGainR=2.18, maxGainB=3.47 (from min R/G=0.5043, min B/G=0.3173)
+# -------------------------------------------------------------------------------- #
+# [aiqb 2]
+# File: IMX471_BBG803N3_PTL.aiqb (570218 bytes)
+# Records found: [1, 2, 3, 7, 13, 15, 16, 17, 19, 20, 25, 26, 28, 31, 32, 33, 34, 37]
+
+# Sensor: 2328x1748, 10-bit, color_order=1
+# Base ISO: 56
+
+# Advanced color matrices (id=25, 5 entries, float CCMs):
+#   CCT=2738K  R/G=0.8448  B/G=0.3262
+#   CCT=2776K  R/G=0.7835  B/G=0.3237
+#   CCT=3801K  R/G=0.5970  B/G=0.4202
+#   CCT=4674K  R/G=0.5436  B/G=0.5042
+#   CCT=5844K  R/G=0.4625  B/G=0.5978
+
+# Suggested AWB maxGainR=2.38, maxGainB=3.4 (from min R/G=0.4625, min B/G=0.3237)
+# -------------------------------------------------------------------------------- #
+# [aiqb 3]
+# File: TBE0020A0_AAJH5-D_PTL.aiqb (349396 bytes)
+# Records found: [1, 2, 3, 7, 13, 15, 16, 17, 19, 20, 25, 26, 28, 31, 32, 34, 37]
+
+# Sensor: 2328x1748, 10-bit, color_order=1
+# Base ISO: 56
+
+# Advanced color matrices (id=25, 6 entries, float CCMs):
+#   CCT=2730K  R/G=0.8660  B/G=0.3269
+#   CCT=2756K  R/G=0.7940  B/G=0.3367
+#   CCT=3586K  R/G=0.6286  B/G=0.4196
+#   CCT=3790K  R/G=0.6062  B/G=0.4366
+#   CCT=4634K  R/G=0.5569  B/G=0.5287
+#   CCT=5776K  R/G=0.4719  B/G=0.6188
+
+# Suggested AWB maxGainR=2.33, maxGainB=3.37 (from min R/G=0.4719, min B/G=0.3269)
+# -------------------------------------------------------------------------------- #
+# [aiqb 1]
+# File: TBE0020A0_CBG802N3A_PTL.aiqb (803182 bytes)
+# File: TBE0020A0_CBG802N3AP_PTL.aiqb (803182 bytes)
+# File: TBE0020A0_CJFPE90P_PTL.aiqb (803182 bytes)
+# File: TBE0020A0_CJFPE90_PTL.aiqb (803182 bytes)
+
+# Records found: [1, 2, 3, 7, 13, 15, 16, 17, 19, 20, 25, 26, 28, 31, 32, 33, 34, 37]
+
+# Sensor: 2328x1748, 10-bit, color_order=1
+# Base ISO: 56
+
+# Advanced color matrices (id=25, 5 entries, float CCMs):
+#   CCT=2694K  R/G=0.9011  B/G=0.3173
+#   CCT=2784K  R/G=0.8241  B/G=0.3263
+#   CCT=3615K  R/G=0.6522  B/G=0.4079
+#   CCT=4656K  R/G=0.5841  B/G=0.5149
+#   CCT=5694K  R/G=0.5043  B/G=0.6068
+
+# Suggested AWB maxGainR=2.18, maxGainB=3.47 (from min R/G=0.5043, min B/G=0.3173)
+# -------------------------------------------------------------------------------- #
+
+# ================================================================================ #
+# = Highest AWB maxGain:  maxGainR=2.38, maxGainB=3.47
+# ================================================================================ #
